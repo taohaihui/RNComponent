@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>eChart</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    #eChart {
+      width: 100%;
+      height: 100%;
+      background: 'none';
+    }
+  </style>
+</head>
+
+<body>
+  <div id="eChart"></div>
+
+  <script src="./echarts.min.js"></script>
+  <script src="./echarts-china.js"></script>
+  <script>
+    window.onload = function () {
+      var eChartDom = document.getElementById('eChart');
+      var myChart = echarts.init(eChartDom);
+
+      myChart.showLoading();
+
+      window.document.addEventListener('message', function (e) {
+        var data = JSON.parse(e.data, function (key, value) {
+          if (key === 'formatter') {
+            return eval(`(${value})`);
+          }
+          return value;
+        });
+
+        var action = data.action;
+        var options = data.options;
+
+        //更新dom尺寸
+        if (action === 'initDom') {
+          options.width && (eChartDom.style.width = options.width + 'px');
+          options.height && (eChartDom.style.height = options.height + 'px');
+          myChart.resize();
+        }
+
+        //更新图表数据
+        if (action === 'newData') {
+          myChart.hideLoading();
+          myChart.setOption(options);
+        }
+
+        //给图表添加事件
+        // {
+        //   action: 'addEChartListener',
+        //   options: [
+        //     {
+        //       name: 'click',
+        //       value: ['componentType', 'seriesType', 'seriesIndex', 'name', 'data']
+        //     }
+        //   ],
+        // }
+        if (action === 'addEChartListener') {
+          options.forEach(item => {
+            myChart.on(item.name, function (params) {
+              let data = { event: item.name };
+
+              item.value.forEach(key => {
+                data[key] = params[key];
+              });
+              window.postMessage(JSON.stringify(data));
+            });
+          });
+        }
+
+        //注册新地图
+        if (action === 'newMap') {
+
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
