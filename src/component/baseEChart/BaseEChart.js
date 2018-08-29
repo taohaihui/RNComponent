@@ -2,23 +2,24 @@
  * @Author: thh 
  * @Date: 2018-08-28 14:26:08 
  * @Last Modified by: thh
- * @Last Modified time: 2018-08-28 17:11:00
+ * @Last Modified time: 2018-08-29 11:32:57
  */
 import React, { Component } from 'react';
 import { View, WebView, Platform, Dimensions } from 'react-native';
 
 export default class BaseEChart extends Component {
   componentDidMount() {
-    this.props.eChartsOptions && this.newData();
-    this.props.eChartsEvents && this.addEChartListener();
-    this.props.mapData && this.newMap();
+    // this.props.eChartsOptions && this.newData();
+    // this.props.eChartsEvents && this.addEChartListener();
+    // this.props.mapData && this.newMap();
   }
 
   componentWillReceiveProps(nextProps) {
-    const { eChartsOptions, eChartsEvents, mapData } = nextProps;
+    const { eChartsOptions, eChartsEvents, mapName, mapData } = nextProps;
+
+    mapName && mapData && this.newMap(mapName, mapData);
     eChartsOptions && this.newData(eChartsOptions);
     eChartsEvents && this.addEChartListener(eChartsEvents);
-    mapData && this.newMap(mapData);
   }
 
   render() {
@@ -59,7 +60,7 @@ export default class BaseEChart extends Component {
   newData(eChartsOptions) {
     let data = {
       action: 'newData',
-      options: eChartsOptions || this.props.eChartsOptions
+      options: eChartsOptions
     };
     this.postMessage(data);
   }
@@ -67,17 +68,21 @@ export default class BaseEChart extends Component {
   //给图表添加事件
   addEChartListener(eChartsEvents) {
     let data = {
-      action: 'newData',
-      options: eChartsEvents || this.props.eChartsEvents
+      action: 'addEChartListener',
+      options: eChartsEvents
     };
     this.postMessage(data);
   }
 
   //注册新地图
-  newMap(mapData) {
+  newMap(mapName, mapData) {
+    console.log(mapName);
     let data = {
       action: 'newMap',
-      options: mapData || this.props.mapData
+      options: {
+        mapName,
+        mapData
+      }
     };
     this.postMessage(data);
   }
@@ -118,6 +123,7 @@ BaseEChart.defaultProps = {
   bgColor: '#fff', //webView背景色 string
   eChartsOptions: null, //图表配置参数 {}
   eChartsEvents: null, //添加事件 []
+  mapName: '', //地图名称 string
   mapData: null, //地图数据 {}
   onMessage: null, //eChartsEvents事件的回调 function
   onLoad: null, //webView加载成功的回调，在此回调函数中要重新渲染组件

@@ -77,14 +77,22 @@
               item.value.forEach(key => {
                 data[key] = params[key];
               });
+
               window.postMessage(JSON.stringify(data));
             });
           });
         }
 
         //注册新地图
+        // {
+        //   action: 'newMap',
+        //   options: {
+        //     mapName: '四川',
+        //     mapData: {}
+        //   }
+        // }
         if (action === 'newMap') {
-
+          echarts.registerMap(options.mapName, options.mapData);
         }
       });
     }

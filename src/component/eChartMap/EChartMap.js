@@ -2,7 +2,7 @@
  * @Author: thh 
  * @Date: 2018-08-28 16:19:46 
  * @Last Modified by: thh
- * @Last Modified time: 2018-08-28 17:06:59
+ * @Last Modified time: 2018-08-29 11:43:13
  */
 import React, { Component } from 'react';
 
@@ -10,7 +10,8 @@ import BaseEChart from '../baseEChart/BaseEChart';
 
 export default class EChartMap extends Component {
   state = {
-    options: null
+    options: null,
+    events: null
   };
 
   render() {
@@ -18,16 +19,35 @@ export default class EChartMap extends Component {
       <BaseEChart
         //bgColor="pink"
         eChartsOptions={this.state.options}
-        onLoad={this.onLoad.bind(this)} />
+        eChartsEvents={this.state.events}
+        onLoad={this.onLoad.bind(this)}
+        onMessage={this.handleMessage.bind(this)} />
     );
   }
 
+  //必须在图表加载完成后再设置数据
   onLoad() {
-    this.setMapData();
+    this.setState({
+      options: this.setMapData(),
+      events: this.setEvents()
+    });
+  }
+
+  handleMessage(data) {
+    console.log(data);
   }
 
   setMapData(maxNum = 2000, data = []) {
     let options = {
+      title: {
+        text: '中国地图，通过js加载地图数据',
+        textStyle: {
+          fontSize: 16,
+          color: '#999',
+          align: 'center',
+          lineHeight: 30
+        }
+      },
       tooltip: {
         trigger: 'item',
         formatter: function (params) {
@@ -48,7 +68,6 @@ export default class EChartMap extends Component {
       },
       geo: {
         map: 'china',
-        //roam: true,
         scaleLimit: {
           min: 1,
           max: 3,
@@ -90,8 +109,21 @@ export default class EChartMap extends Component {
       }]
     };
 
-    this.setState({
-      options
-    });
+    return options;
+  }
+
+  setEvents() {
+    let eChartsEvents = [
+      {
+        name: 'click',
+        value: ['componentType', 'seriesType', 'seriesIndex', 'name', 'data']
+      },
+      {
+        name: 'dblclick',
+        value: ['componentType']
+      }
+    ];
+
+    return eChartsEvents;
   }
 }
